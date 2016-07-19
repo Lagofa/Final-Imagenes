@@ -21,12 +21,13 @@ public class Editor extends javax.swing.JFrame{
 	private JMenuBar menuBar = new JMenuBar();	
 	private JMenu menuArchivo = new JMenu("Archivo");
 	private JMenuItem itemCargar = new JMenuItem("Abrir Imagen");
+	private JMenuItem itemCargarVideo = new JMenuItem("Abrir Video");
 	private JMenuItem itemCerrar = new JMenuItem("Cerrar");
 	private JMenu menuUmbralizar = new JMenu("Umbralizar");
 	private JMenuItem itemUmbralColores = new JMenuItem("Umbralizacion en Colores");
 	private JMenuItem itemUmbralVideo = new JMenuItem("Umbralizacion de Video");
 	private Imagen[] imagenes;
-	private Imagen imagen;
+	private Imagen imagen=null;
     
 	@SuppressWarnings("javadoc")
 	public Editor() {
@@ -51,6 +52,7 @@ public class Editor extends javax.swing.JFrame{
 	private JMenuBar crearMenu() {
 		menuArchivo.add(itemCerrar);
 		menuArchivo.add(itemCargar);
+		menuArchivo.add(itemCargarVideo);
 		menuArchivo.add(itemCerrar);
 		menuBar.add(menuArchivo);
 		menuUmbralizar.add(itemUmbralColores);
@@ -66,6 +68,7 @@ public class Editor extends javax.swing.JFrame{
 	private void agregarBotones() {
 		agregarMenuCerrar();
 		agregarMenuCargar();
+		agregarMenuCargarVideo();
 		agregarUmbralColor();
 		agregarUmbralVideo();
 	}
@@ -74,9 +77,13 @@ public class Editor extends javax.swing.JFrame{
 		// TODO Auto-generated method stub
 		itemUmbralColores.addActionListener(new java.awt.event.ActionListener() {	
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				if(imagen!=null){
 				UmbralColor procesador = new UmbralColor();
 				Imagen resultado = procesador.umbralizar(imagen);
 				new VentanaUmbralizada(resultado);
+				}else{
+					JOptionPane.showMessageDialog(null,"Error, no hay una imagen para umbralizar");
+				}
 			}
 		});
 	}
@@ -85,17 +92,13 @@ public class Editor extends javax.swing.JFrame{
 		// TODO Auto-generated method stub
 		itemUmbralVideo.addActionListener(new java.awt.event.ActionListener() {	
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				ObjProcesamiento.abrirImagen(Boolean.TRUE);
 				imagenes = ObjProcesamiento.getSecuenciaImagenes();			
 				if ((imagenes!=null)&&(imagenes.length>=1)){
-					
 					new ProcesadorDeVideo(imagenes);
-						
 				}else{
-					JOptionPane.showMessageDialog(null,"Error en la carga de las imagenes secuenciales");
+					JOptionPane.showMessageDialog(null,"Error,primero debe cargar un video");
 				}
 			}
-
 		});
 	}
 	
@@ -121,12 +124,26 @@ public class Editor extends javax.swing.JFrame{
 		itemCargar.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				try {	
-					cargarActionPermorfed(false);
+					cargarActionPermorfed(Boolean.FALSE);
 				}catch(Exception e){
-					System.out.println("ERROR DE CARGA ARCHIVO: "+ObjProcesamiento.getNombreArchivoImagen());
+					JOptionPane.showMessageDialog(null,"Error al cargar la imagen");
 				}	
 			}
 		});
+	}
+	
+	private void agregarMenuCargarVideo(){
+		itemCargarVideo.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				ObjProcesamiento.abrirImagen(Boolean.TRUE);
+				imagenes = ObjProcesamiento.getSecuenciaImagenes();			
+				if ((imagenes==null)||(imagenes.length<1)){
+					JOptionPane.showMessageDialog(null,"Error al cargar el video");
+				}else{
+					cargarImagen(ObjProcesamiento.getSecuenciaImagenes()[0]);
+				}
+			}
+			});
 	}
 
 	private void cargarActionPermorfed(boolean esSecuencial) {
